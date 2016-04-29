@@ -2,7 +2,7 @@
  * Created by jzl on 16/4/28.
  */
 
-def test = "(() \\eq (A_{1} \\and A_{2}))"
+def test = "((\\not B) \\eq (A_{1} \\and A_{2}))"
 
 parse = new parsing()
 

@@ -20,6 +20,43 @@ class parsing {
 
         int index = 1
 
+        /*
+            unary connective
+         */
+        if (4 < input.length() && input[1..4] == "\\not") {
+            index = 4 + 2
+            int begin = index
+            if (input[begin] == '(') {
+                int left_parentheses = 0, right_parentheses = 0
+                for (;index<input.length();index++) {
+                    if (input[index] == '(')
+                        left_parentheses++
+                    else if (input[index] == ')') {
+                        right_parentheses++
+                        if (right_parentheses == left_parentheses) {
+                            left_proposition = input[begin..index++]
+                            break
+                        }
+                    }
+                }
+            } else if (begin + 4 < input.length() && proposition_letter_2.matcher(input[begin..begin+4]).matches()) {
+                left_proposition = input[begin..begin+4]
+                index = begin + 5
+            } else if (proposition_letter_1.matcher(input[begin]).matches()) {
+                left_proposition = input[begin]
+                index = begin + 1
+            } else
+                return false
+
+            if (index != input.length() - 1)
+                return false;
+
+            return is_well_defined(left_proposition)
+        }
+
+        /*
+            binary connective
+         */
         if (input[1] == '(') {
             int left_parentheses = 0, right_parentheses = 0
             for (;index<input.length();index++) {
@@ -36,14 +73,12 @@ class parsing {
             }
         } else if (5 < input.length() && proposition_letter_2.matcher(input[1..5]).matches()) {
             left_proposition = input[1..5]
-            index = 5 + 2
+            index = 1 + 6
         } else if (proposition_letter_1.matcher(input[1]).matches()) {
             left_proposition = input[1]
             index = 1 + 2
         } else
             return false
-
-        //println(left_proposition)
 
         if (input[index..index+3] == "\\and")
             index += 5
@@ -76,8 +111,6 @@ class parsing {
             index = begin + 1
         } else
             return false
-
-        //println(right_proposition)
 
         if (index != input.length()-1)
             return false
