@@ -6,8 +6,7 @@ import javax.swing.*
 
 class parsing {
     def proposition_letter_1 = ~/[A-Z]/
-    def proposition_letter_2 = ~/[A-Z]_\{[0-9]\}/
-    def connectives = ["\\and", "\\or", "\\not", "\\imply", "\\eq"]
+    def proposition_letter_2 = ~/[A-Z]_\{[0-9]+\}/
 
     boolean is_well_defined(String input) {
         if (proposition_letter_1.matcher(input).matches() || proposition_letter_2.matcher(input).matches())
@@ -24,7 +23,7 @@ class parsing {
             unary connective
          */
         if (4 < input.length() && input[1..4] == "\\not") {
-            index = 4 + 2
+            index = 5
             int begin = index
             if (input[begin] == '(') {
                 int left_parentheses = 0, right_parentheses = 0
@@ -39,18 +38,22 @@ class parsing {
                         }
                     }
                 }
-            } else if (begin + 4 < input.length() && proposition_letter_2.matcher(input[begin..begin+4]).matches()) {
-                left_proposition = input[begin..begin+4]
-                index = begin + 5
-            } else if (proposition_letter_1.matcher(input[begin]).matches()) {
+            } else if (input.length() > begin+1 && proposition_letter_1.matcher(input[begin]).matches() && input[begin+1] == ')') {
                 left_proposition = input[begin]
                 index = begin + 1
-            } else
-                return false
+            } else {
+                for (;index<input.length();index++) {
+                    if (input[index] == '}' && proposition_letter_2.matcher(input[begin..index]).matches()) {
+                        left_proposition = input[begin..index]
+                        index++
+                        break
+                    }
+                }
+            }
 
             if (index != input.length() - 1)
                 return false;
-
+println(left_proposition)
             return is_well_defined(left_proposition)
         }
 
@@ -65,27 +68,30 @@ class parsing {
                 else if (input[index] == ')') {
                     right_parentheses++
                     if (right_parentheses == left_parentheses) {
-                        left_proposition = input[1..index]
-                        index += 2
+                        left_proposition = input[1..index++]
                         break
                     }
                 }
             }
-        } else if (5 < input.length() && proposition_letter_2.matcher(input[1..5]).matches()) {
-            left_proposition = input[1..5]
-            index = 1 + 6
-        } else if (proposition_letter_1.matcher(input[1]).matches()) {
+        } else if (input.length() > 2 && proposition_letter_1.matcher(input[1]).matches() && input[2] == '\\') {
             left_proposition = input[1]
-            index = 1 + 2
-        } else
-            return false
+            index++
+        } else {
+            for (;index<input.length();index++) {
+                if (input[index] == '}' && proposition_letter_2.matcher(input[1..index]).matches()) {
+                    left_proposition = input[1..index++]
+                    break
+                }
+            }
+        }
+println(left_proposition)
 
         if (input[index..index+3] == "\\and")
-            index += 5
-        else if (input[index..index+2] == "\\or" || input[index..index+2] == "\\eq")
             index += 4
+        else if (input[index..index+2] == "\\or" || input[index..index+2] == "\\eq")
+            index += 3
         else if (input[index..index+5] == "\\imply")
-            index += 7
+            index += 6
         else
             return false
 
@@ -103,18 +109,21 @@ class parsing {
                     }
                 }
             }
-        } else if (begin + 4 < input.length() && proposition_letter_2.matcher(input[begin..begin+4]).matches()) {
-            right_proposition = input[begin..begin+4]
-            index = begin + 5
-        } else if (proposition_letter_1.matcher(input[begin]).matches()) {
+        } else if (input.length() > begin+1 && proposition_letter_1.matcher(input[begin]).matches() && input[begin+1] == ')') {
             right_proposition = input[begin]
             index = begin + 1
-        } else
-            return false
+        } else {
+            for (;index<input.length();index++) {
+                if (input[index] == '}' && proposition_letter_2.matcher(input[begin..index]).matches()) {
+                    right_proposition = input[begin..index++]
+                    break
+                }
+            }
+        }
 
         if (index != input.length()-1)
             return false
-
+println(right_proposition)
 
         return is_well_defined(left_proposition) && is_well_defined(right_proposition);
     }

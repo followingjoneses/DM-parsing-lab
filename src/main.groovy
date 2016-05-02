@@ -2,7 +2,11 @@
  * Created by jzl on 16/4/28.
  */
 
-def test = "((\\not B) \\eq (A_{1} \\and A_{2}))"
+def test = "(((C \\and D) \\or (\\not B))   \\eq (A_{14324} \\and A_{2}))"
+
+test = test.replace(' ', '').replace('\t', '')
+
+println(test)
 
 parse = new parsing()
 
