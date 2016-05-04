@@ -1,6 +1,6 @@
 # DM-parsing-lab
 
-## Direction
+## Directions
 
 1. Input a propostion
 
