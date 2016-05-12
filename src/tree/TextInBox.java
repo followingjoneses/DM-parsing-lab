@@ -43,7 +43,7 @@ public class TextInBox {
 
 	public TextInBox(String text) {
 		this.text = text;
-		this.width = 10 * text.length() + 10;
-		this.height = 20;
+		this.width = 11 * text.length() + 12;
+		this.height = 22;
 	}
 }

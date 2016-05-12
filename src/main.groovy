@@ -13,11 +13,11 @@ Scanner sc = new Scanner(new File("propositions.txt"))
 
 while (sc.hasNextLine()) {
     String line = sc.nextLine()
-    line = line.replace(' ', '').replace('\t', '')
-    TextInBox root = new TextInBox(line)
+    String trim_line = line.replaceAll(' ', '').replaceAll('\t', '')
+    TextInBox root = new TextInBox(trim_line)
     parse = new parsing()
-    boolean answer = parse.equal_parentheses(line) && parse.is_well_defined(root)
-    println("proposition: " + line + "\t\twell-defined: " +answer)
+    boolean answer = parse.is_proposition_symbol(line) && parse.equal_parentheses(line) && parse.is_well_defined(root)
+    println("proposition: " + line + "\t\twell-defined: " + answer)
     if (answer) {
         PaintTree.draw(root)
         JOptionPane.showMessageDialog(null, null, "next proposition", JOptionPane.PLAIN_MESSAGE)

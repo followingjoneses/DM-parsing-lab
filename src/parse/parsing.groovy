@@ -2,19 +2,17 @@ package parse
 /**
  * Created by jzl on 16/4/28.
  */
-import groovy.swing.SwingBuilder
+
 import tree.TextInBox
 
-import javax.swing.*
-
 class parsing {
-    def proposition_letter_1 = ~/[A-Z]/
-    def proposition_letter_2 = ~/[A-Z]_\{[0-9]+\}/
+    def proposition_letter = ~/[A-Z]+(_\{\d+\})?/
+    def proposition_symbol = ~/([\s]+\\and[\s]+|[\s]+\\or[\s]+|[\s]*\\not[\s]+|[\s]+\\imply[\s]+|[\s]+\\eq[\s]+|[\s]*\([\s]*|[\s]*\)[\s]*|[A-Z]+(_\{\d+\})?)+/
 
     boolean is_well_defined(TextInBox node) {
         String input = node.text
 
-        if (proposition_letter_1.matcher(input).matches() || proposition_letter_2.matcher(input).matches())
+        if (proposition_letter.matcher(input).matches())
             return true
 
         if (input[0] != '(')
@@ -41,12 +39,12 @@ class parsing {
                         }
                     }
                 }
-            } else if (input.length() > begin+1 && proposition_letter_1.matcher(input[begin]).matches() && input[begin+1] == ')') {
+            } else if (input.length() > begin+1 && proposition_letter.matcher(input[begin]).matches() && input[begin+1] == ')') {
                 node.left = new TextInBox(input[begin])
                 index = begin + 1
             } else {
                 for (;index<input.length();index++) {
-                    if (input[index] == '}' && proposition_letter_2.matcher(input[begin..index]).matches()) {
+                    if (input[index] == '}' && proposition_letter.matcher(input[begin..index]).matches()) {
                         node.left = new TextInBox(input[begin..index++])
                         break
                     }
@@ -75,12 +73,12 @@ class parsing {
                     }
                 }
             }
-        } else if (input.length() > 2 && proposition_letter_1.matcher(input[1]).matches() && input[2] == '\\') {
+        } else if (input.length() > 2 && proposition_letter.matcher(input[1]).matches() && input[2] == '\\') {
             node.left = new TextInBox(input[1])
             index++
         } else {
             for (;index<input.length();index++) {
-                if (input[index] == '}' && proposition_letter_2.matcher(input[1..index]).matches()) {
+                if (input[index] == '}' && proposition_letter.matcher(input[1..index]).matches()) {
                     node.left = new TextInBox(input[1..index++])
                     break
                 }
@@ -110,12 +108,12 @@ class parsing {
                     }
                 }
             }
-        } else if (input.length() > begin+1 && proposition_letter_1.matcher(input[begin]).matches() && input[begin+1] == ')') {
+        } else if (input.length() > begin+1 && proposition_letter.matcher(input[begin]).matches() && input[begin+1] == ')') {
             node.right = new TextInBox(input[begin])
             index = begin + 1
         } else {
             for (;index<input.length();index++) {
-                if (input[index] == '}' && proposition_letter_2.matcher(input[begin..index]).matches()) {
+                if (input[index] == '}' && proposition_letter.matcher(input[begin..index]).matches()) {
                     node.right = new TextInBox(input[begin..index++])
                     break
                 }
@@ -126,6 +124,10 @@ class parsing {
             return false
 
         return is_well_defined(node.left) && is_well_defined(node.right);
+    }
+
+    boolean is_proposition_symbol(String input) {
+        return input.matches(proposition_symbol)
     }
 
     boolean equal_parentheses(String input) {
